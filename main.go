@@ -7,10 +7,16 @@ import (
 
 	"github.com/ankur59/classifieds-app/internal/config"
 	"github.com/ankur59/classifieds-app/internal/config/handlers"
+	"github.com/ankur59/classifieds-app/internal/db"
+	
 )
 
 func main() {
 	cfg := config.MustLoad()
+	_, error := db.Connect(cfg.DB_URL)
+	if error != nil {
+		log.Fatalf("main.db.connect: %v", error)
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", handlers.Healthz)
 
@@ -21,7 +27,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 	}
-	
+
 	err := server.ListenAndServe()
 	log.Printf("Server listening at Port: %s", cfg.PORT)
 	if err != nil {
